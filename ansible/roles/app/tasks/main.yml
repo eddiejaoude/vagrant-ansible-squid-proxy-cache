@@ -1,0 +1,23 @@
+---
+# application tasks to be customized and to run after the main provision
+- name: update file db
+  sudo: yes
+  shell: updatedb
+
+- name: Install Squid proxy cache
+  sudo: yes
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - squid3
+
+# maximum_object_size 4 MB -> maximum_object_size 500 MB
+- name: Update Squid config
+  lineinfile: dest=/etc/squid3/squid.conf regexp='maximum_object_size 4 MB' line='maximum_object_size 500 MB'
+
+# http_access allow localhost -> http_access allow all
+- name: Update Squid config
+  lineinfile: dest=/etc/squid3/squid.conf regexp='http_access allow localhost' line='http_access allow all'
+
+# cache_dir ufs /var/spool/squid3 ... -> cache_dir ufs /vagrant/squid3 16384 16 256
+- name: Update Squid config
+  lineinfile: dest=/etc/squid3/squid.conf regexp='cache_dir ufs /var/spool/squid3' line='cache_dir ufs /vagrant/squid3 16384 16 256'
